@@ -274,7 +274,7 @@ test('should ignore cache if redis is out', async () => {
     cacheable.close();
 });
 
-test.only('should support object values', async () => {
+test('should support object values', async () => {
     const cacheable = new PromiseCacheable(defaultRedisFactory);
 
     const executeOptions = {
