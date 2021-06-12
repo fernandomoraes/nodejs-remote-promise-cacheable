@@ -291,12 +291,14 @@ test.only('should support object values', async () => {
         await cacheable.call(executeOptions, () => processedValue)
     );
 
-    const result1 = JSON.parse(
+    const result2 = JSON.parse(
         await cacheable.call(executeOptions, () => processedValue)
     );
 
     expect(result).toStrictEqual(processedValue);
-    expect(result1).toStrictEqual(processedValue);
+
+    //returned by redis cache
+    expect(result2).toStrictEqual(processedValue);
 
     cacheable.close();
 });
