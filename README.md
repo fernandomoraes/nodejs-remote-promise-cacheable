@@ -44,7 +44,7 @@ const result = await cacheable.call(callOptions, () => {
 
 //a more real use case, using async operation
 const result = await cacheable.call(callOptions, ()=> {
-    return axio.get('https://google.com.br')
+    return axios.get('https://google.com.br')
         .then(response => response.data);
 });
 
