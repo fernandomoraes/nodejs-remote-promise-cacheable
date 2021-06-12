@@ -13,20 +13,20 @@ The main objective here is to avoid **unnecessary** work process. To achieve goo
 **yarn**
 
 ```.sh
-yarn add @moraes/nodejs-remote-promise-cacheable
+yarn add @moraes/remote-promise-cacheable
 ```
 
 **npm**
 
 ```.sh
-npm install --save @moraes/nodejs-remote-promise-cacheable
+npm install --save @moraes/remote-promise-cacheable
 ```
 
 ### Code
 
 ```.js
 import Redis from 'ioredis';
-import PromiseCacheable from '@moraes/nodejs-remote-promise-cacheable';
+import PromiseCacheable from '@moraes/remote-promise-cacheable';
 
 const cacheable = new PromiseCacheable(() => new Redis());
 
