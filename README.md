@@ -48,6 +48,8 @@ const result = await cacheable.call(callOptions, ()=> {
         .then(response => response.data);
 });
 
+//release redis connection
+cacheable.close();
 ```
 
 ### Properties
