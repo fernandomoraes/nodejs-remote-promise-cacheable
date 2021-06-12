@@ -77,6 +77,6 @@ const cacheable = new PromiseCacheable(() => new Redis(), {
 
 Configure Redis timeout for a resilient communication, the value should be low to quickly recover from a problem, and high to support a spike. Remember: timeout can be both a remedy and a poison.
 
-## Wait timeout
+### Wait timeout
 
 Configure this value to be something close to the processing time of the real operation, this will prevent you of waiting a long time before knowing there was a problem.
