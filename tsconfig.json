@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
         "target": "ES2017",
-        "module": "commonjs",
+        "module": "ES2020",
         "declaration": true,
-        "outDir": "dist/cjs",
+        "outDir": "dist/esm",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
-    }
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node"
+    },
+    "include": ["./src"],
+    "exclude": ["**/*.spec.ts"]
 }

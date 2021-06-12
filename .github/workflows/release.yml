@@ -1,0 +1,31 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - v*
+
+jobs:
+    lint-and-test:
+        name: Build and release
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v2
+
+            - name: setup nodejs
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '15.11.0'
+
+            - name: install
+              run: yarn install --frozen-lockfile
+
+            - name: build
+              run: yarn build
+
+            - name: publish
+              run: yarn publish
+              env:
+                NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+              
