@@ -1,0 +1,11 @@
+name: Lint and Test
+
+jobs:
+    lint-and-test:
+        name: Lint and Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: install
+              run: yarn install --frozen-lockfile
+            - name: test
+              run: yarn test
