@@ -1,4 +1,6 @@
 [![codecov](https://codecov.io/gh/fernandomoraes/nodejs-remote-promise-cacheable/branch/master/graph/badge.svg?token=31HHCRCKYV)](https://codecov.io/gh/fernandomoraes/nodejs-remote-promise-cacheable)
+![lint and test](https://github.com/fernandomoraes/nodejs-remote-promise-cacheable/actions/workflows/push.yml/badge.svg)
+![release](https://github.com/fernandomoraes/nodejs-remote-promise-cacheable/actions/workflows/release.yml/badge.svg)
 
 # nodejs remote promise cacheable
 
