@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/fernandomoraes/nodejs-remote-promise-cacheable/branch/master/graph/badge.svg?token=31HHCRCKYV)](https://codecov.io/gh/fernandomoraes/nodejs-remote-promise-cacheable)
+
 # nodejs remote promise cacheable
 
 A lightweight nodejs library that allows you to avoid duplicated processing (http calls, database, processing, etc) in a distributed environment. The library is based on Redis lock and pub/sub operations to work.
