@@ -7,7 +7,16 @@ jobs:
         name: Lint and Test
         runs-on: ubuntu-latest
         steps:
+            - name: checkout
+            uses: actions/checkout@v2
+
+            - name: setup nodejs
+            uses: actions/setup-node@v1
+            with:
+                node-version: '15.11.0'
+
             - name: install
               run: yarn install --frozen-lockfile
+
             - name: test
               run: yarn test
