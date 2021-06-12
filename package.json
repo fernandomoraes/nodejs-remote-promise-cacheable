@@ -6,7 +6,15 @@
     "author": "Fernando Moraes <fernandosdemoraes@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "test": "jest --detectOpenHandles"
+        "test": "jest --detectOpenHandles",
+        "fix:eslint": "eslint . --cache --fix --ext .js,.ts",
+        "fix:prettier": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+        "lint:eslint": "eslint . --cache --ext .js,.ts",
+        "lint:prettier": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+        "build:cjs": "tsc",
+        "build:esm": "tsc --outDir dist/esm --module ES2020",
+        "prebuild": "yarn lint:prettier && yarn lint:eslint",
+        "build": "rimraf dist && yarn build:cjs && yarn build:esm"
     },
     "devDependencies": {
         "@types/ioredis": "^4.26.4",

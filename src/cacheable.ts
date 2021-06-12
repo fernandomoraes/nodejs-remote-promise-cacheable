@@ -1,6 +1,5 @@
 import { Redis } from 'ioredis';
-import { Logger } from 'winston';
-import winston from 'winston';
+import winston, { Logger } from 'winston';
 
 type RedisFactory = () => Redis;
 
@@ -14,10 +13,11 @@ type CallOptions = {
     waitTimeout: number;
 };
 
-type Result = string | object;
+type Result = string | unknown;
 
 export default class PromiseCacheable {
     private redis: Redis;
+
     private logger: Logger;
 
     constructor(
@@ -32,7 +32,7 @@ export default class PromiseCacheable {
         options: CallOptions,
         callableFunction: () => Promise<Result> | Result
     ): Promise<string> {
-        const key = options.key;
+        const { key } = options;
         const lockKey = `lock_${options.key}`;
         const notifyKey = `notify_${options.key}`;
 
@@ -40,7 +40,7 @@ export default class PromiseCacheable {
             const resultAsString =
                 typeof result === 'string' ? result : JSON.stringify(result);
             try {
-                //atomic remove lock and setting cache
+                // atomic remove lock and setting cache
                 await this.redis
                     .multi()
                     .set(key, resultAsString, 'PX', options.cacheTimeout)
@@ -49,9 +49,8 @@ export default class PromiseCacheable {
                     .exec();
             } catch (e) {
                 this.logger.error(`problems on success callback operations`, e);
-            } finally {
-                return resultAsString;
             }
+            return resultAsString;
         };
 
         const fromCache = await this.safeGetFromCache(key);
@@ -63,31 +62,24 @@ export default class PromiseCacheable {
         const lock = await this.safeGetLock(lockKey, options.waitTimeout);
 
         if (lock) {
-            let result: Result = await Promise.resolve(
+            const result: Result = await Promise.resolve(
                 await callableFunction()
             );
             return safeSuccessCallback(result);
-        } else {
-            const subRedis = this.redisFactory();
-
-            return await this.safeSubscribe(
-                subRedis,
-                key,
-                notifyKey,
-                options.waitTimeout,
-                callableFunction
-            )
-                .finally(() => {
-                    this.safeDisconnectRedis(subRedis);
-                })
-                .catch(async () => {
-                    const result = await Promise.resolve(callableFunction());
-                    return safeSuccessCallback(result);
-                });
         }
+        const subRedis = this.redisFactory();
+
+        return this.safeSubscribe(subRedis, key, notifyKey, options.waitTimeout)
+            .finally(() => {
+                this.safeDisconnectRedis(subRedis);
+            })
+            .catch(async () => {
+                const result = await Promise.resolve(callableFunction());
+                return safeSuccessCallback(result);
+            });
     }
 
-    close() {
+    close(): void {
         this.safeDisconnectRedis(this.redis);
     }
 
@@ -121,9 +113,9 @@ export default class PromiseCacheable {
         subscriberConnection: Redis,
         key: string,
         notifyKey: string,
-        timeout: number,
-        callableFunction: () => Promise<Result> | Result
+        timeout: number
     ): Promise<string> {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             let timeoutId: NodeJS.Timeout;
 
@@ -139,7 +131,7 @@ export default class PromiseCacheable {
                     resolveCallback(message);
                 });
 
-                //race condition between check and subscribe
+                // race condition between check and subscribe
                 const doubleCheck = await this.redis.get(key);
                 if (doubleCheck) {
                     resolveCallback(doubleCheck);

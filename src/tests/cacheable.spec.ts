@@ -1,10 +1,9 @@
 import Redis from 'ioredis';
-import { v4 as uuidv4 } from 'uuid';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
-
-import PromiseCacheable from '../';
-
 import allSettled from 'promise.allsettled';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import { v4 as uuidv4 } from 'uuid';
+
+import PromiseCacheable from '..';
 
 let container: StartedTestContainer;
 
@@ -186,7 +185,7 @@ test('should process other calls in case the wait timeout happens on inflight er
         executeOptions,
         () =>
             new Promise((resolve, reject) => {
-                setTimeout(() => reject('slow value'), 2 * 1000);
+                setTimeout(() => reject(new Error()), 2 * 1000);
             })
     );
 
@@ -299,7 +298,7 @@ test('should support object values', async () => {
 
     expect(result).toStrictEqual(processedValue);
 
-    //returned by redis cache
+    // returned by redis cache
     expect(result2).toStrictEqual(processedValue);
 
     cacheable.close();
