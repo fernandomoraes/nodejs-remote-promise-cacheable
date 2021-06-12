@@ -25,7 +25,6 @@ export default class PromiseCacheable {
         options?: ConstructorOptions
     ) {
         this.redis = redisFactory();
-
         this.logger = options?.logger || winston.createLogger({ silent: true });
     }
 
