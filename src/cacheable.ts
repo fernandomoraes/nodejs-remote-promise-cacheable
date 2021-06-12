@@ -14,6 +14,8 @@ type CallOptions = {
     waitTimeout: number;
 };
 
+type Result = string | object;
+
 export default class PromiseCacheable {
     private redis: Redis;
     private logger: Logger;
@@ -28,25 +30,27 @@ export default class PromiseCacheable {
 
     async call(
         options: CallOptions,
-        callableFunction: () => Promise<string> | string
+        callableFunction: () => Promise<Result> | Result
     ): Promise<string> {
         const key = options.key;
         const lockKey = `lock_${options.key}`;
         const notifyKey = `notify_${options.key}`;
 
-        const safeSuccessCallback = async (result: string) => {
+        const safeSuccessCallback = async (result: Result) => {
+            const resultAsString =
+                typeof result === 'string' ? result : JSON.stringify(result);
             try {
                 //atomic remove lock and setting cache
                 await this.redis
                     .multi()
-                    .set(key, result, 'PX', options.cacheTimeout)
-                    .publish(notifyKey, result)
+                    .set(key, resultAsString, 'PX', options.cacheTimeout)
+                    .publish(notifyKey, resultAsString)
                     .del(lockKey)
                     .exec();
             } catch (e) {
                 this.logger.error(`problems on success callback operations`, e);
             } finally {
-                return result;
+                return resultAsString;
             }
         };
 
@@ -59,7 +63,9 @@ export default class PromiseCacheable {
         const lock = await this.safeGetLock(lockKey, options.waitTimeout);
 
         if (lock) {
-            let result = await Promise.resolve(await callableFunction());
+            let result: Result = await Promise.resolve(
+                await callableFunction()
+            );
             return safeSuccessCallback(result);
         } else {
             const subRedis = this.redisFactory();
@@ -116,7 +122,7 @@ export default class PromiseCacheable {
         key: string,
         notifyKey: string,
         timeout: number,
-        callableFunction: () => Promise<string> | string
+        callableFunction: () => Promise<Result> | Result
     ): Promise<string> {
         return new Promise(async (resolve, reject) => {
             let timeoutId: NodeJS.Timeout;

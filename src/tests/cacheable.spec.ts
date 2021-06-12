@@ -273,3 +273,30 @@ test('should ignore cache if redis is out', async () => {
 
     cacheable.close();
 });
+
+test.only('should support object values', async () => {
+    const cacheable = new PromiseCacheable(defaultRedisFactory);
+
+    const executeOptions = {
+        ...defaultExecuteOptions,
+        key: uuidv4(),
+    };
+
+    const processedValue = {
+        id: 'id',
+        name: 'name',
+    };
+
+    const result = JSON.parse(
+        await cacheable.call(executeOptions, () => processedValue)
+    );
+
+    const result1 = JSON.parse(
+        await cacheable.call(executeOptions, () => processedValue)
+    );
+
+    expect(result).toStrictEqual(processedValue);
+    expect(result1).toStrictEqual(processedValue);
+
+    cacheable.close();
+});
