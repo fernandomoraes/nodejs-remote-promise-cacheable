@@ -19,14 +19,16 @@ const defaultExecuteOptions = {
     waitTimeout: 10 * 1000,
 };
 
-beforeAll(async () => {
+beforeAll(async (done) => {
     container = await new GenericContainer('redis:6')
         .withExposedPorts(6379)
         .start();
+    done();
 });
 
-afterAll(async () => {
+afterAll(async (done) => {
     await container.stop();
+    done();
 });
 
 test('should return processed value', async () => {

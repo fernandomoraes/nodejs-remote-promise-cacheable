@@ -6,7 +6,7 @@
     "author": "Fernando Moraes <fernandosdemoraes@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "test": "jest"
+        "test": "jest --detectOpenHandles"
     },
     "devDependencies": {
         "@types/ioredis": "^4.26.4",
