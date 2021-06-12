@@ -134,14 +134,14 @@ test('should process other calls in case of wait timeout happens on inflight pro
     const executeOptions = {
         ...defaultExecuteOptions,
         key: uuidv4(),
-        waitTimeout: 2 * 1000,
+        waitTimeout: 1 * 1000,
     };
 
     const resultPromise = cacheable.call(
         executeOptions,
         () =>
             new Promise((resolve) => {
-                setTimeout(() => resolve('slow value'), 3 * 1000);
+                setTimeout(() => resolve('slow value'), 4 * 1000);
             })
     );
 
