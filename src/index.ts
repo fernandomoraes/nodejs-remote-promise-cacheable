@@ -1,3 +1,1 @@
-import PromiseCacheable from './cacheable';
-
-export default PromiseCacheable;
+export * from './cacheable';

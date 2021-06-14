@@ -15,7 +15,7 @@ type CallOptions = {
 
 type Result = string | unknown;
 
-export default class PromiseCacheable {
+export class PromiseCacheable {
     private redis: Redis;
 
     private logger: Logger;

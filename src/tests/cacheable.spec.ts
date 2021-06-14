@@ -3,7 +3,7 @@ import allSettled from 'promise.allsettled';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { v4 as uuidv4 } from 'uuid';
 
-import PromiseCacheable from '..';
+import { PromiseCacheable } from '..';
 
 let container: StartedTestContainer;
 

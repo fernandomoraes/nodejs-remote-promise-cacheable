@@ -1,6 +1,6 @@
 {
     "name": "@moraes/remote-promise-cacheable",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "repository": "git@github.com:fernandomoraes/nodejs-remote-promise-cacheable.git",
     "author": "Fernando Moraes <fernandosdemoraes@gmail.com>",
     "license": "MIT",
