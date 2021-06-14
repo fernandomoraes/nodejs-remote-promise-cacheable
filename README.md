@@ -30,7 +30,7 @@ npm install --save @moraes/remote-promise-cacheable
 
 ```.js
 import Redis from 'ioredis';
-import PromiseCacheable from '@moraes/remote-promise-cacheable';
+import { PromiseCacheable } from '@moraes/remote-promise-cacheable';
 
 const cacheable = new PromiseCacheable(() => new Redis());
 
