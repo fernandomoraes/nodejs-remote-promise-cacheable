@@ -41,26 +41,20 @@ export class PromiseCacheable {
         const safeSuccessCallback = async (result: Result) => {
             const resultAsString =
                 typeof result === 'string' ? result : JSON.stringify(result);
-
-            // console.log('processou');
             try {
-                await Promise.all([
-                    this.redis.set(
-                        key,
-                        resultAsString,
-                        'PX',
-                        options.cacheTimeout
-                    ),
-                    this.redis.publish(notifyKey, resultAsString),
-                    this.redis.del(lockKey),
-                ]);
-                // atomic remove lock and setting cache
-                // await this.redis
-                //     .multi()
-                //     .set(key, resultAsString, 'PX', options.cacheTimeout)
-                //     .publish(notifyKey, resultAsString)
-                //     .del(lockKey)
-                //     .exec();
+                // try first set on cache, less problems if something goes wrong.
+                // it doesn't use transaction to be possible to work with cluster.
+                await this.redis.set(
+                    key,
+                    resultAsString,
+                    'PX',
+                    options.cacheTimeout
+                );
+                await this.redis
+                    .pipeline()
+                    .publish(notifyKey, resultAsString)
+                    .del(lockKey)
+                    .exec();
             } catch (e) {
                 this.logger.error(`problems on success callback operations`, e);
             }
