@@ -1,7 +1,9 @@
-import { Redis } from 'ioredis';
+import { Cluster, Redis } from 'ioredis';
 import winston, { Logger } from 'winston';
 
-type RedisFactory = () => Redis;
+type RedisAbstract = Redis | Cluster;
+
+type RedisFactory = () => RedisAbstract;
 
 type ConstructorOptions = {
     logger?: Logger;
@@ -16,7 +18,7 @@ type CallOptions = {
 type Result = string | unknown;
 
 export class PromiseCacheable {
-    private redis: Redis;
+    private redis: RedisAbstract;
 
     private logger: Logger;
 
@@ -39,14 +41,26 @@ export class PromiseCacheable {
         const safeSuccessCallback = async (result: Result) => {
             const resultAsString =
                 typeof result === 'string' ? result : JSON.stringify(result);
+
+            // console.log('processou');
             try {
+                await Promise.all([
+                    this.redis.set(
+                        key,
+                        resultAsString,
+                        'PX',
+                        options.cacheTimeout
+                    ),
+                    this.redis.publish(notifyKey, resultAsString),
+                    this.redis.del(lockKey),
+                ]);
                 // atomic remove lock and setting cache
-                await this.redis
-                    .multi()
-                    .set(key, resultAsString, 'PX', options.cacheTimeout)
-                    .publish(notifyKey, resultAsString)
-                    .del(lockKey)
-                    .exec();
+                // await this.redis
+                //     .multi()
+                //     .set(key, resultAsString, 'PX', options.cacheTimeout)
+                //     .publish(notifyKey, resultAsString)
+                //     .del(lockKey)
+                //     .exec();
             } catch (e) {
                 this.logger.error(`problems on success callback operations`, e);
             }
@@ -83,7 +97,7 @@ export class PromiseCacheable {
         this.safeDisconnectRedis(this.redis);
     }
 
-    private safeDisconnectRedis(redis: Redis) {
+    private async safeDisconnectRedis(redis: RedisAbstract) {
         try {
             redis.disconnect();
         } catch (e) {
@@ -110,7 +124,7 @@ export class PromiseCacheable {
     }
 
     private safeSubscribe(
-        subscriberConnection: Redis,
+        subscriberConnection: RedisAbstract,
         key: string,
         notifyKey: string,
         timeout: number

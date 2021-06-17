@@ -68,7 +68,7 @@ module.exports = {
     // moduleNameMapper: {},
 
     // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-    // modulePathIgnorePatterns: [],
+    modulePathIgnorePatterns: ['dist'],
 
     // Activates notifications for test results
     // notify: false,
@@ -175,5 +175,5 @@ module.exports = {
 
     // Whether to use watchman for file crawling
     // watchman: true,
-    testTimeout: 30000,
+    testTimeout: 60000,
 };
