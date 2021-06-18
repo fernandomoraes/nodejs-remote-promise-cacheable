@@ -1,7 +1,9 @@
-import { Redis } from 'ioredis';
+import { Cluster, Redis } from 'ioredis';
 import winston, { Logger } from 'winston';
 
-type RedisFactory = () => Redis;
+type RedisAbstract = Redis | Cluster;
+
+type RedisFactory = () => RedisAbstract;
 
 type ConstructorOptions = {
     logger?: Logger;
@@ -16,7 +18,7 @@ type CallOptions = {
 type Result = string | unknown;
 
 export class PromiseCacheable {
-    private redis: Redis;
+    private redis: RedisAbstract;
 
     private logger: Logger;
 
@@ -40,10 +42,16 @@ export class PromiseCacheable {
             const resultAsString =
                 typeof result === 'string' ? result : JSON.stringify(result);
             try {
-                // atomic remove lock and setting cache
+                // try first set on cache, less problems if something goes wrong.
+                // it doesn't use transaction to be possible to work with cluster.
+                await this.redis.set(
+                    key,
+                    resultAsString,
+                    'PX',
+                    options.cacheTimeout
+                );
                 await this.redis
-                    .multi()
-                    .set(key, resultAsString, 'PX', options.cacheTimeout)
+                    .pipeline()
                     .publish(notifyKey, resultAsString)
                     .del(lockKey)
                     .exec();
@@ -83,7 +91,7 @@ export class PromiseCacheable {
         this.safeDisconnectRedis(this.redis);
     }
 
-    private safeDisconnectRedis(redis: Redis) {
+    private async safeDisconnectRedis(redis: RedisAbstract) {
         try {
             redis.disconnect();
         } catch (e) {
@@ -110,7 +118,7 @@ export class PromiseCacheable {
     }
 
     private safeSubscribe(
-        subscriberConnection: Redis,
+        subscriberConnection: RedisAbstract,
         key: string,
         notifyKey: string,
         timeout: number
